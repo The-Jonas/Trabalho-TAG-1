@@ -1,0 +1,1 @@
+## Algoritmos do grafo (PageRank, Detecção de Comunidade, e Medidas de Centralidade)
