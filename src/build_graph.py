@@ -1,28 +1,26 @@
-## Construção do grafo a partir do dataset ##
+# Não esquecer de utilizar "pip install -r requirements.txt" no terminal antes
 
 import networkx as nx
-import os
+import pandas as pd
+from collections import defaultdict
 
-def load_graph_from_edges(file_path: str) -> nx.DiGraph:
-
-    """Lê um arquivo .edges ou .txt com pares de usuários e retorna um grafo direcionado."""
-    
-    G = nx.read_edgelist(file_path, create_using=nx.DiGraph(), nodetype=int)
-    return G    
-
-def load_all_graphs_from_folder(folder_path: str) -> dict:
-    
+def build_graph_from_txt(path: str) -> nx.DiGraph:
     """
-    Lê todos os arquivos .edges dentro de uma pasta e cria um dicionário de grafos.
-    Chave: nome base do arquivo (ex: '104615636')
-    Valor: grafo NetworkX correspondente
+    Lê um arquivo com interações (user1 user2 por linha)
+    e retorna um DiGraph com pesos baseados na frequência de interação.
     """
-    
-    graphs = {}
-    for filename in os.listdir(folder_path):
-        if filename.endswith(".edges"):
-            base = filename.split(".")[0]
-            path = os.path.join(folder_path, filename)
-            G = load_graph_from_edges(path)
-            graphs[base] = G
-    return graphs
+
+    edge_weights = defaultdict(int)  # Cria um dicionário para contar interações entre pares
+
+    # Lê o arquivo linha por linha
+    with open(path, "r") as file:
+        for line in file:
+            u1, u2 = line.strip().split()
+            edge_weights[(u1, u2)] += 1  # Conta quantas vezes (u1 -> u2) aparece
+
+    # Cria o grafo direcionado
+    G = nx.DiGraph()
+    for (u1, u2), weight in edge_weights.items():
+        G.add_edge(u1, u2, weight=weight)  # Arestas com peso baseado na frequência
+
+    return G
